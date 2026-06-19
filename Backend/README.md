@@ -10,6 +10,8 @@ This repository contains the backend for an Uber-like clone application with bas
 - Logout functionality with blacklisted token handling
 - Request validation using `express-validator`
 - Captain registration with vehicle details
+- Captain login with JWT authentication
+- Captain profile access and logout
 - Captain profile management with status tracking
 - Location-based captain data storage
 
@@ -100,9 +102,12 @@ This repository contains the backend for an Uber-like clone application with bas
 
 - **`routes/captain.routes.js`** - Maps captain endpoints:
   - `POST /register` → `captainController.registerCaptain()`
+  - `POST /login` → `captainController.loginCaptain()`
+  - `GET /profile` → auth middleware → `captainController.getCaptainProfile()`
+  - `GET /logout` → auth middleware → `captainController.logoutCaptain()`
   - Includes validation rules for all fields (email, name, password, vehicle)
 
-### Data Flow for Captain Registration
+### Data Flow for Captain Authentication
 ```
 Client sends POST /captain/register
     ↓
@@ -150,6 +155,15 @@ JWT_SECRET=<your-jwt-secret>
 5. The backend verifies the password and returns a new JWT.
 6. **Protected routes**: Requests must include the JWT in either a cookie named `token` or an `Authorization` header.
 7. **Logout**: The token is stored in a blacklist collection, so it cannot be reused.
+
+### Captain Authentication Flow
+1. **Captain register**: Captains submit `fullname`, `email`, `password`, and `vehicle` data.
+2. The captain password is hashed and saved with vehicle details.
+3. A JWT is returned with the captain response.
+4. **Captain login**: Captains submit `email` and `password`.
+5. On successful authentication, a JWT is returned and may be stored in a cookie.
+6. **Captain protected routes**: Use `GET /captain/profile` with a valid JWT.
+7. **Captain logout**: Blacklists the token and clears the session cookie.
 
 ## API Endpoints
 
@@ -278,6 +292,53 @@ JWT_SECRET=<your-jwt-secret>
   - `vehicle.plate` minimum length 3
   - `vehicle.capacity` minimum value 1
   - `vehicle.vehicleType` must be one of: 'car', 'motorcycle', 'auto'
+
+### Captain Login
+- URL: `POST /captain/login`
+- Body:
+  ```json
+  {
+    "email": "jane@example.com",
+    "password": "password123"
+  }
+  ```
+- Success response:
+  - Status: `200`
+  - Body:
+    ```json
+    {
+      "token": "<jwt-token>",
+      "captain": {
+        "_id": "...",
+        "fullname": { "firstname": "Jane", "lastname": "Smith" },
+        "email": "jane@example.com",
+        "vehicle": { "color": "Black", "plate": "ABC123", "capacity": 4, "vehicleType": "car" },
+        "status": "inactive"
+      }
+    }
+    ```
+- The server also sets a cookie: `token=<jwt-token>`.
+
+### Captain Profile
+- URL: `GET /captain/profile`
+- Requires authentication
+- Include token in either:
+  - Cookie: `token=<jwt-token>`
+  - Header: `Authorization: Bearer <jwt-token>`
+- Success response:
+  - Status: `200`
+  - Body: captain details
+
+### Captain Logout
+- URL: `GET /captain/logout`
+- Requires authentication
+- Clears the `token` cookie and stores the current token in the blacklist
+- Success response:
+  - Status: `200`
+  - Body:
+    ```json
+    { "message": "Logged out" }
+    ```
 
 ## Suggestions for Improvement
 - Add email verification and password reset flows
