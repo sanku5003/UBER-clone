@@ -100,9 +100,6 @@ This repository contains the backend for an Uber-like clone application with bas
 
 - **`routes/captain.routes.js`** - Maps captain endpoints:
   - `POST /register` → `captainController.registerCaptain()`
-  - `POST /login` → `captainController.loginCaptain()`
-  - `GET /profile` → auth middleware → `captainController.getCaptainProfile()`
-  - `GET /logout` → auth middleware → `captainController.logoutCaptain()`
   - Includes validation rules for all fields (email, name, password, vehicle)
 
 ### Data Flow for Captain Registration
@@ -281,58 +278,6 @@ JWT_SECRET=<your-jwt-secret>
   - `vehicle.plate` minimum length 3
   - `vehicle.capacity` minimum value 1
   - `vehicle.vehicleType` must be one of: 'car', 'motorcycle', 'auto'
-
-### Login Captain
-- URL: `POST /captain/login`
-- Body:
-  ```json
-  {
-    "email": "captain@example.com",
-    "password": "password123"
-  }
-  ```
-- Success response:
-  - Status: `200`
-  - Body:
-    ```json
-    {
-      "token": "<jwt-token>",
-      "captain": {
-        "_id": "...",
-        "fullname": { "firstname": "Jane", "lastname": "Smith" },
-        "email": "captain@example.com",
-        "vehicle": {
-          "color": "Black",
-          "plate": "ABC123",
-          "capacity": 4,
-          "vehicleType": "car"
-        },
-        "status": "inactive"
-      }
-    }
-    ```
-- The server also sets a cookie: `token=<jwt-token>`.
-
-### Captain Profile
-- URL: `GET /captain/profile`
-- Requires authentication
-- Include token in either:
-  - Cookie: `token=<jwt-token>`
-  - Header: `Authorization: Bearer <jwt-token>`
-- Success response:
-  - Status: `200`
-  - Body: captain details
-
-### Captain Logout
-- URL: `GET /captain/logout`
-- Requires authentication
-- Clears the `token` cookie and stores the current token in the blacklist
-- Success response:
-  - Status: `200`
-  - Body:
-    ```json
-    { "message": "Logged out" }
-    ```
 
 ## Suggestions for Improvement
 - Add email verification and password reset flows
