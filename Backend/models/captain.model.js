@@ -11,7 +11,6 @@ const captainSchema = new mongoose.Schema({
     },
     lastname: {
       type: String,
-      required: true,
       minlength: [3, "Last name must be at least 3 characters long"],
     },
   },
@@ -57,40 +56,39 @@ const captainSchema = new mongoose.Schema({
       min: [1, "Capacity must be atleast 1"],
     },
 
-    vehicleType : {
-      type : String ,
-      required : true ,
-      enum : ['car' , 'motorcycle' , 'auto'] 
-    }
+    vehicleType: {
+      type: String,
+      required: true,
+      enum: ["car", "motorcycle", "auto"],
+    },
   },
 
-  location : {
-    lat : {
-      type : Number ,
-    } ,
-    long : {
-      type : Number
-    }
-  }
+  location: {
+    lat: {
+      type: Number,
+    },
+    long: {
+      type: Number,
+    },
+  },
 });
 
-captainSchema.methods.generateAuthToken = function() {
-  const token = jwt.sign({ _id : this._id} , process.env.JWT_SECRET , {expiresIn : '24h'});
+captainSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
 
   return token;
-
-}
+};
 
 captainSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-
 captainSchema.statics.hashPassword = async function (password) {
-    return await bcrypt.hash(password , 10);
-}
+  return await bcrypt.hash(password, 10);
+};
 
-
-const  captainModel = mongoose.model('captain' , captainSchema);
+const captainModel = mongoose.model("captain", captainSchema);
 
 module.exports = captainModel;
