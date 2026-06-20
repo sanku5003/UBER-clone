@@ -1,6 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const CaptainSignUp = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [userData, setUserData] = useState({});
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    setUserData({
+      fullname: {
+        firstname: firstname,
+        lastname: lastname,
+      },
+      email: email,
+      password: password,
+    });
+
+    setEmail("");
+    setFirstname("");
+    setLastname("");
+    setPassword("");
+  };
   return (
     <div>
       <div className="p-7 flex flex-col justify-between h-screen ">
@@ -70,7 +93,7 @@ const CaptainSignUp = () => {
             </button>
             <p className="text-center">
               Already have an Account?{" "}
-              <Link to={"/login"} className="text-blue-600">
+              <Link to={"/captain-login"} className="text-blue-600">
                 Login Here.
               </Link>
             </p>

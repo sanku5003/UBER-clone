@@ -10,14 +10,14 @@ const UserSignUp = () => {
     e.preventDefault();
 
     setUserData({
-      username: {
+      fullname: {
         firstname: firstname,
         lastname: lastname,
       },
       email: email,
       password: password,
     });
-    console.log(userData);
+    
 
     setEmail("");
     setFirstname("");
