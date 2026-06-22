@@ -1,23 +1,38 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 const UserSignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [userData, setUserData] = useState({});
-  const submitHandler = (e) => {
+  const [user, setUser] = React.useContext(UserDataContext);
+  const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
     e.preventDefault();
 
-    setUserData({
+    const newUser = {
       fullname: {
         firstname: firstname,
         lastname: lastname,
       },
       email: email,
       password: password,
-    });
-    
+    };
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/user/register`,
+      newUser,
+    );
+    if (response.status === 201) {
+      const data = response.data;
+      setUser(data.user);
+
+      localStorage.setItem("token", data.token);
+      navigate("/home");
+    }
 
     setEmail("");
     setFirstname("");
@@ -90,7 +105,7 @@ const UserSignUp = () => {
               type="submit"
               className="bg-[#111] text-[#ffffff] font-semibold mb-2 rounded px-4 py-2  w-full text-lg"
             >
-              Login
+              Create Account
             </button>
             <p className="text-center">
               Already have an Account?{" "}
