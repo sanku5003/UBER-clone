@@ -1,14 +1,13 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect , useState } from "react";
 import { CaptainDataContext } from "../context/CaptainContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CaptainProtectedWrapper = ({ children }) => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const { captain , setCaptain } = useContext(CaptainDataContext);
   const [isLoading, setIsLoading] = useState(true);    
-
-    console.log("CaptainProtectedWrapper token:", token); // Debugging log
 
   useEffect(() => {
     if (!token) {
