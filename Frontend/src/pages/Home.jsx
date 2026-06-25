@@ -4,6 +4,7 @@ import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
 import LocationSearchPanel from "../components/LocationSearchPanel";
 import VehiclePanel from "../components/vehiclePanel";
+import ConfirmedRide from "../components/ConfirmedRide";
 
 const Home = () => {
   const [pickup, setPickup] = useState("");
@@ -13,6 +14,8 @@ const Home = () => {
   const panelRef = useRef(null);
   const panelCloseRef = useRef(null);
   const vehiclePanelRef = useRef(null);
+  const [confirmedRidePanel, setConfirmedRidePanel] = useState(false);
+  const confirmedRideRef = useRef(null);
   const submitHandler = (e) => {
     e.preventDefault();
   };
@@ -55,6 +58,20 @@ const Home = () => {
       }
     },
     [vehiclePanel],
+  );
+  useGSAP(
+    function () {
+      if (confirmedRidePanel) {
+        gsap.to(confirmedRideRef.current, {
+          transform: "translateY(0)",
+        });
+      } else {
+        gsap.to(confirmedRideRef.current, {
+          transform: "translateY(100%)",
+        });
+      }
+    },
+    [confirmedRidePanel],
   );
 
   return (
@@ -129,7 +146,17 @@ const Home = () => {
         ref={vehiclePanelRef}
         className="fixed w-full z-10 bottom-0  bg-white px-3 py-6 translate-y-full"
       >
-       <VehiclePanel setOpenPanel = {setOpenPanel} setVehiclePanel = {setVehiclePanel}/>
+        <VehiclePanel
+          setOpenPanel={setOpenPanel}
+          setVehiclePanel={setVehiclePanel}
+          setConfirmedRidePanel={setConfirmedRidePanel}
+        />
+      </div>
+      <div
+        ref={confirmedRideRef}
+        className="fixed w-full z-10 bottom-0  bg-white px-3 py-6 translate-y-full"
+      >
+        <ConfirmedRide setConfirmedRidePanel = {setConfirmedRidePanel} setVehiclePanel = {setVehiclePanel} />
       </div>
     </div>
   );
