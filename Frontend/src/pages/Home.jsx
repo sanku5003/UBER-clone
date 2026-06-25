@@ -3,13 +3,16 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
 import LocationSearchPanel from "../components/LocationSearchPanel";
+import VehiclePanel from "../components/vehiclePanel";
 
 const Home = () => {
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [panelOpen, setOpenPanel] = useState(false);
+  const [vehiclePanel, setVehiclePanel] = useState(false);
   const panelRef = useRef(null);
   const panelCloseRef = useRef(null);
+  const vehiclePanelRef = useRef(null);
   const submitHandler = (e) => {
     e.preventDefault();
   };
@@ -19,30 +22,43 @@ const Home = () => {
       if (panelOpen) {
         gsap.to(panelRef.current, {
           height: "70%",
-          opacity : 1,
-          padding : 24
+          opacity: 1,
+          padding: 24,
         });
-        gsap.to(panelCloseRef.current , {
-          opacity : 1,
-         
-          
-        })
+        gsap.to(panelCloseRef.current, {
+          opacity: 1,
+        });
       } else {
         gsap.to(panelRef.current, {
           height: "0%",
-          opacity : 0,
-           padding : 0
+          opacity: 0,
+          padding: 0,
         });
-          gsap.to(panelCloseRef.current , {
-          opacity : 0
-        })
+        gsap.to(panelCloseRef.current, {
+          opacity: 0,
+        });
       }
     },
     [panelOpen],
   );
 
+  useGSAP(
+    function () {
+      if (vehiclePanel) {
+        gsap.to(vehiclePanelRef.current, {
+          transform: "translateY(0)",
+        });
+      } else {
+        gsap.to(vehiclePanelRef.current, {
+          transform: "translateY(100%)",
+        });
+      }
+    },
+    [vehiclePanel],
+  );
+
   return (
-    <div className="h-screen relative">
+    <div className="h-screen relative overflow-hidden">
       <img
         className="w-16 absolute left-5 top-5"
         src="https://imgs.search.brave.com/mqZ2TMeO2R6hJQCG1z0AaA9OxbbmsB5ydQ67hFv0At0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9mcmVl/bG9nb3BuZy5jb20v/aW1hZ2VzL2FsbF9p/bWcvMTY1OTc2MTEw/MHViZXItbG9nby1w/bmcucG5n"
@@ -100,7 +116,20 @@ const Home = () => {
             />
           </form>
         </div>
-        <div ref={panelRef} className="h-[0%] bg-white "><LocationSearchPanel/></div>
+        <div ref={panelRef} className="h-[0%] bg-white ">
+          <LocationSearchPanel
+            vehiclePanel={vehiclePanel}
+            setVehiclePanel={setVehiclePanel}
+            panelOpen={panelOpen}
+            setPanelOpen={setOpenPanel}
+          />
+        </div>
+      </div>
+      <div
+        ref={vehiclePanelRef}
+        className="fixed w-full z-10 bottom-0  bg-white px-3 py-6 translate-y-full"
+      >
+       <VehiclePanel setOpenPanel = {setOpenPanel} setVehiclePanel = {setVehiclePanel}/>
       </div>
     </div>
   );
