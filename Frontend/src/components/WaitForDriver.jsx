@@ -2,9 +2,7 @@ import React from 'react'
 
 const WaitForDriver = () => {
   return (
-    <div>
-      
-    </div>
+   <div></div>
   )
 }
 
