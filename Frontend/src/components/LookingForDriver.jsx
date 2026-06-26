@@ -1,8 +1,17 @@
 import React from "react";
 
-const LookingForDriver = () => {
+const LookingForDriver = (props) => {
   return (
     <div>
+      <h5
+        className="absolute top-1 left-[45%] text-xl "
+        onClick={() => {
+          props.setVehicleFound(false);
+        }}
+      >
+        {" "}
+        <i className="ri-arrow-down-wide-line"></i>
+      </h5>
       <div>
         <h3 className="text-2xl font-semibold mb-5 ">
           Looking For Your Driver
@@ -41,9 +50,6 @@ const LookingForDriver = () => {
               </div>
             </div>
           </div>
-          <button className="w-full bg-green-500 text-white font-semibold p-2 rounded-xl ">
-            Confirm
-          </button>
         </div>
       </div>
     </div>
