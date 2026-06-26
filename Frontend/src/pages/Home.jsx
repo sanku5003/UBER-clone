@@ -158,6 +158,12 @@ const Home = () => {
       >
         <ConfirmedRide setConfirmedRidePanel = {setConfirmedRidePanel} setVehiclePanel = {setVehiclePanel} />
       </div>
+      <div
+        ref={confirmedRideRef}
+        className="fixed w-full z-10 bottom-0  bg-white px-3 py-6 translate-y-full"
+      >
+        <ConfirmedRide setConfirmedRidePanel = {setConfirmedRidePanel} setVehiclePanel = {setVehiclePanel} />
+      </div>
     </div>
   );
 };
