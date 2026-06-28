@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CaptainDataContext}  from "../context/CaptainContext";
+import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 const CaptainSignUp = () => {
   const [email, setEmail] = useState("");
@@ -33,7 +33,7 @@ const CaptainSignUp = () => {
       password: password,
     };
 
-    const response =await axios.post(
+    const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/captain/register`,
       captainData,
     );
@@ -56,10 +56,10 @@ const CaptainSignUp = () => {
   };
   return (
     <div>
-      <div className="p-7 flex flex-col justify-between h-screen ">
+      <div className="p-7 flex flex-col justify-between h-screen">
         <div>
           <img
-            className="w-17 mb-7 mt-7 h-4"
+            className="w-17 mb-7 mt-2 h-4"
             src="https://imgs.search.brave.com/UA9Fvo2eOU__nqbgQuTYdbHXkfCL_8sYgiS5bFOCY3A/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/ZnJlZXBuZ2xvZ29z/LmNvbS91cGxvYWRz/L3ViZXItbG9nb3R5/cGUtcG5nLTEwLnBu/Zw"
             alt=""
           />
@@ -180,7 +180,7 @@ const CaptainSignUp = () => {
             </p>
           </form>
         </div>
-        <div>
+        <div className="mt-4">
           <p className="text-[10px] leading-tight">
             By proceeding , you consent to get calls, Whatsapp or SMS messages,
             including by automated means, from Uber and its affiliates to the
