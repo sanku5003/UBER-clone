@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const ConfirmRidePopUp = (props) => {
   return (
@@ -11,7 +12,9 @@ const ConfirmRidePopUp = (props) => {
       >
         <i className="ri-arrow-down-wide-line"></i>
       </h5>
-      <h3 className="text-2xl font-semibold mb-5 mt-2 ">Confirm this ride to start</h3>
+      <h3 className="text-2xl font-semibold mb-5 mt-2 ">
+        Confirm this ride to start
+      </h3>
       <div className="flex items-center justify-between mt-3 bg-yellow-400 rounded p-2">
         <div className="flex items-center gap-3 ">
           <img
@@ -51,23 +54,35 @@ const ConfirmRidePopUp = (props) => {
             </div>
           </div>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              props.setConfirmRidePopUpPanel(false);
+        <div className="">
+          <form
+            onSubmit={(e) => {
+              submitHandler(e);
             }}
-            className="w-full  bg-red-500 text-white font-semibold rounded  px-6 py-3"
           >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-            
-            }}
-            className="w-full bg-green-500 text-white font-semibold rounded px-6 py-3"
-          >
-           Confirm
-          </button>
+            <input
+              className="bg-[#a7a6a6]  px-5 py-2 text-base rounded-lg w-full mt-5"
+              type="Number"
+              placeholder="Enter OTP"
+            />
+            <br />
+            <div className="flex gap-5 justify-center mt-5">
+              <button
+                onClick={() => {
+                  props.setConfirmRidePopUpPanel(false);
+                }}
+                className="  bg-red-500 text-white font-semibold rounded  px-6 py-3"
+              >
+                Cancel
+              </button>
+              <Link
+                to={"/captain-riding"}
+                className=" bg-green-500 text-white font-semibold rounded px-6 py-3"
+              >
+                Confirm
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>
