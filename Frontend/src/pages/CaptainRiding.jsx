@@ -1,13 +1,33 @@
-import React from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import FinishRide from "../components/FinishRide";
 
 const CaptainRiding = () => {
+const [finishRidePanel , setFinishRidePanel] = useState(false);
+const finishRidePanelRef = useRef(null);
+
+  useGSAP(
+    function () {
+      if (finishRidePanel) {
+        gsap.to(finishRidePanelRef.current, {
+          transform: "translateY(0)",
+        });
+      } else {
+        gsap.to(finishRidePanelRef.current, {
+          transform: "translateY(100%)",
+        });
+      }
+    },
+    [finishRidePanel],
+  );
   return (
     <div>
       <div className="h-screen">
-        <div className="fixed  p-4 top-0 flex items-center justify-between w-full">
+        <div className="fixed p-4 w-full top-0 flex items-center justify-between">
           <img
-            className="w-16 "
+            className="w-16"
             src="https://imgs.search.brave.com/mqZ2TMeO2R6hJQCG1z0AaA9OxbbmsB5ydQ67hFv0At0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9mcmVl/bG9nb3BuZy5jb20v/aW1hZ2VzL2FsbF9p/bWcvMTY1OTc2MTEw/MHViZXItbG9nby1w/bmcucG5n"
             alt=""
           />
@@ -26,11 +46,8 @@ const CaptainRiding = () => {
           />
         </div>
 
-        <div className="h-1/5  bg-yellow-400">
-          <h5
-            className="relative left-[50%] text-xl "
-         
-          >
+        <div className="fixed w-full h-1/5  bg-yellow-400" onClick={() => setFinishRidePanel(true)}>
+          <h5 className="relative left-[50%] text-xl ">
             <i className="ri-arrow-up-wide-line"></i>
           </h5>
           <div className="p-6 flex items-center  justify-between">
@@ -39,6 +56,12 @@ const CaptainRiding = () => {
               Complete Ride
             </button>
           </div>
+        </div>
+        <div
+          ref={finishRidePanelRef}
+          className="fixed w-full z-10 translate-y-full bottom-0  bg-white px-3 py-6"
+        >
+          <FinishRide />
         </div>
       </div>
     </div>
