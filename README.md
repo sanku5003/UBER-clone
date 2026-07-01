@@ -1,202 +1,132 @@
-# UBER Clone Backend Documentation
+# UBER Clone Documentation
 
 ## Overview
-This repository contains the backend for an Uber-like clone application with basic user authentication. The backend is built with Node.js, Express, MongoDB, and JSON Web Tokens (JWT). Authentication includes user registration, login, profile access, and logout with token blacklist support.
+This project is an Uber-style application with both backend and frontend completed for user and captain authentication flows. The backend is built with Node.js, Express, MongoDB, and JWT, while the frontend uses React, Vite, Axios, and React Router.
 
-## Features
-- User registration with password hashing
-- User login with JWT token generation
-- Protected profile route using middleware
-- Logout functionality with blacklisted token handling
-- Request validation using `express-validator`
-- Captain registration with vehicle details
-- Captain login with JWT authentication
-- Captain profile access and logout
-- Captain profile management with status tracking
-- Location-based captain data storage
+The current implementation includes:
+- User registration and login
+- Captain registration and login
+- Protected user and captain routes
+- Token-based authentication connected to the frontend
+- User-facing ride request UI and captain-facing ride management UI
 
-## Tech Stack
-- Node.js
-- Express
-- MongoDB / Mongoose
-- bcrypt for password hashing
-- JSON Web Token (`jsonwebtoken`) for auth tokens
-- cookie-parser for token cookies
-- express-validator for request validation
+## Completed Features
+- User sign up and login UI
+- Captain sign up and login UI
+- User and captain profile requests via protected frontend wrappers
+- Token stored in `localStorage` and sent as `Authorization: Bearer <token>`
+- Connected frontend to backend at `VITE_BASE_URL`
+- Navigation between user and captain flows
 
-## Backend Structure & Architecture
+## Frontend Flow
 
-### Entry Point
-- **`server.js`** - The main application entry point. It:
-  - Connects to MongoDB using the connection string from `.env`
-  - Initializes the Express app from `app.js`
-  - Starts the HTTP server on the specified PORT
-  - Manages database lifecycle
+### User Flow
+1. Landing page at `/` sends users to `/login`.
+2. User can sign in at `/login` or register at `/signup`.
+3. After successful login or registration, the frontend stores the returned JWT in `localStorage`.
+4. The user is redirected to `/home`.
+5. `UserProtectedWrapper` verifies the token and fetches `/user/profile`.
+6. The user can use the ride search UI, select pickup and destination, and proceed through ride panels.
 
-### Application Setup
-- **`app.js`** - Configures the Express application with:
-  - Middleware setup (body-parser, cookie-parser, etc.)
-  - Route registration (user routes, captain routes)
-  - Error handling middleware
-  - CORS and security configurations
+### Captain Flow
+1. Captain login is available at `/captain-login` and registration at `/captain-signup`.
+2. After successful registration or login, the frontend stores the JWT in `localStorage`.
+3. The captain is redirected to `/captain-home`.
+4. `CaptainProtectedWrapper` verifies the token and fetches `/captain/profile`.
+5. The captain UI displays ride details and popup controls for managing rides.
 
-### Database Connection
-- **`db/db.js`** - Database connection module:
-  - Establishes connection to MongoDB using Mongoose
-  - Handles connection errors
-  - Exports connection for use in `server.js`
+## Frontend Routing
+- `/` → `Start` landing page
+- `/login` → `UserLogin`
+- `/signup` → `UserSignUp`
+- `/home` → `Home` inside `UserProtectedWrapper`
+- `/user/logout` → `UserLogout` inside `UserProtectedWrapper`
+- `/captain-login` → `CaptainLogin`
+- `/captain-signup` → `CaptainSignUp`
+- `/captain-home` → `CaptainHome` inside `CaptainProtectedWrapper`
+- `/captain/logout` → `CaptainLogout` inside `CaptainProtectedWrapper`
 
-### Data Models (Database Schemas)
-- **`models/user.models.js`** - User collection schema:
-  - Defines user structure: fullname, email, password, etc.
-  - Contains methods: `generateAuthToken()`, `comparePassword()`
-  - Contains static method: `hashPassword()` for bcrypt hashing
+## Frontend Authentication and State
+- Token saved to `localStorage` under `token`
+- User registration/login POST requests send form data to `/user/register` and `/user/login`
+- Captain registration/login POST requests send form data to `/captain/register` and `/captain/login`
+- Protected wrappers fetch `/user/profile` or `/captain/profile` on load
+- Logout pages call `/user/logout` or `/captain/logout` and remove the token from `localStorage`
 
-- **`models/captain.model.js`** - Captain collection schema:
-  - Defines captain structure: fullname, email, password, vehicle, status, location
-  - Vehicle sub-document with: color, plate, capacity, vehicleType
-  - Contains methods: `generateAuthToken()`, `comparePassword()`
-  - Contains static method: `hashPassword()`
-
-- **`models/blackListToken.model.js`** - Token blacklist collection:
-  - Stores invalidated JWT tokens during logout
-  - TTL index to auto-delete tokens after 24 hours
-
-### Middleware
-- **`middlewares/auth.middleware.js`** - Authentication middleware:
-  - Extracts JWT from cookies or Authorization header
-  - Verifies token signature using `JWT_SECRET`
-  - Checks if token is in the blacklist
-  - Attaches user/captain data to request object
-  - Rejects requests without valid tokens
-
-### Request Handlers (Business Logic)
-- **`controllers/user.controller.js`** - User operations:
-  - `registerUser()` - Validates input, hashes password, creates user, generates token
-  - `loginUser()` - Validates credentials, generates token, sets cookie
-  - `getUserProfile()` - Returns authenticated user details
-  - `logoutUser()` - Blacklists token and clears cookie
-
-- **`controllers/captain.controller.js`** - Captain operations:
-  - `registerCaptain()` - Validates input, hashes password, creates captain with vehicle details, generates token
-  - Similar pattern to user controller
-
-### Services (Database Operations)
-- **`services/user.service.js`** - User data access layer:
-  - `createUser()` - Inserts new user into database with hashed password
-  - Validates required fields before insertion
-  - Returns created user document
-
-- **`services/captain.services.js`** - Captain data access layer:
-  - `createCaptain()` - Inserts new captain with full details (name, email, vehicle)
-  - Validates all required fields
-  - Returns created captain document
-
-### Routes (API Endpoints)
-- **`routes/user.routes.js`** - Maps user endpoints:
-  - `POST /register` → `userController.registerUser()`
-  - `POST /login` → `userController.loginUser()`
-  - `GET /profile` → auth middleware → `userController.getUserProfile()`
-  - `GET /logout` → auth middleware → `userController.logoutUser()`
-  - Includes validation rules via `express-validator`
-
-- **`routes/captain.routes.js`** - Maps captain endpoints:
-  - `POST /register` → `captainController.registerCaptain()`
-  - `POST /login` → `captainController.loginCaptain()`
-  - `GET /profile` → auth middleware → `captainController.getCaptainProfile()`
-  - `GET /logout` → auth middleware → `captainController.logoutCaptain()`
-  - Includes validation rules for all fields (email, name, password, vehicle)
-
-### Data Flow for Captain Authentication
-```
-Client sends POST /captain/register
-    ↓
-Express validates input using express-validator (routes/captain.routes.js)
-    ↓
-captainController.registerCaptain() processes request
-    ↓
-Checks if captain email already exists in database
-    ↓
-captainModel.hashPassword() - bcrypt hashes the password
-    ↓
-captainService.createCaptain() - saves to MongoDB
-    ↓
-captain.generateAuthToken() - creates JWT token
-    ↓
-Response sent with token and captain details
-```
-
-## Environment Variables
-Create a `.env` file in the `Backend` folder with the following values:
-
+## Frontend Environment
+The `Frontend/.env` file should include:
 ```env
-PORT=3000
+VITE_BASE_URL=http://localhost:4000
+```
+This points the React app to the backend server.
+
+## Backend Environment
+The `Backend/.env` file should include:
+```env
+PORT=4000
 MONGODB_URI=<your-mongodb-connection-string>
 JWT_SECRET=<your-jwt-secret>
 ```
 
-## Setup
+## Backend Setup
 1. Open a terminal in `Backend`
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Start the server:
+3. Start the backend server:
    ```bash
    node server.js
    ```
-4. The backend runs on `http://localhost:3000` by default.
+4. The backend is available at `http://localhost:4000`
 
-## Authentication Flow
-1. **Register**: The user submits `fullname`, `email`, and `password`.
-2. The password is hashed using `bcrypt`.
-3. A JWT is generated using `JWT_SECRET` and returned to the client.
-4. **Login**: The user submits `email` and `password`.
-5. The backend verifies the password and returns a new JWT.
-6. **Protected routes**: Requests must include the JWT in either a cookie named `token` or an `Authorization` header.
-7. **Logout**: The token is stored in a blacklist collection, so it cannot be reused.
+## Frontend Setup
+1. Open a terminal in `Frontend`
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the frontend dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open the URL shown by Vite in the browser.
 
-### Captain Authentication Flow
-1. **Captain register**: Captains submit `fullname`, `email`, `password`, and `vehicle` data.
-2. The captain password is hashed and saved with vehicle details.
-3. A JWT is returned with the captain response.
-4. **Captain login**: Captains submit `email` and `password`.
-5. On successful authentication, a JWT is returned and may be stored in a cookie.
-6. **Captain protected routes**: Use `GET /captain/profile` with a valid JWT.
-7. **Captain logout**: Blacklists the token and clears the session cookie.
+## Backend API Endpoints
 
-## API Endpoints
+### User Endpoints
+- `POST /user/register`
+- `POST /user/login`
+- `GET /user/profile`
+- `GET /user/logout`
 
-### Register New User
-- URL: `POST /user/register`
-- Body:
-  ```json
-  {
-    "fullname": {
-      "firstname": "John",
-      "lastname": "Doe"
-    },
-    "email": "john@example.com",
-    "password": "password123"
-  }
-  ```
-- Success response:
-  - Status: `201`
-  - Body:
-    ```json
-    {
-      "token": "<jwt-token>",
-      "user": {
-        "_id": "...",
-        "fullname": { "firstname": "John", "lastname": "Doe" },
-        "email": "john@example.com"
-      }
-    }
-    ```
-- Validation rules:
-  - `email` must be a valid email
-  - `fullname.firstname` minimum length 3
-  - `password` minimum length 6
+### Captain Endpoints
+- `POST /captain/register`
+- `POST /captain/login`
+- `GET /captain/profile`
+- `GET /captain/logout`
+
+## Authentication Details
+- Registration request returns a JWT and profile data
+- Login request returns a JWT and profile data
+- Protected routes require `Authorization: Bearer <token>`
+- Token is also supported in a `token` cookie from the server
+- Logout blacklists the JWT so it cannot be reused
+
+## Notes
+- User and captain UI are implemented and connected to the backend
+- The frontend currently uses `localStorage` for session handling
+- `UserProtectedWrapper` and `CaptainProtectedWrapper` redirect unauthorized users to login pages
+- The app supports separate user and captain experiences with dedicated pages and ride UI
+
+## Future Improvements
+- Add refresh tokens for longer sessions
+- Add better error handling and feedback in the frontend forms
+- Add actual ride dispatch logic and backend ride matching
+- Add role-based authorization and admin controls
+
+## Contact
+Review the `Backend/` folder for server logic and the `Frontend/src/` pages for user and captain UI flow.
 
 ### Login User
 - URL: `POST /user/login`
